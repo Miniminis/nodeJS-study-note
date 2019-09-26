@@ -12,3 +12,13 @@ for(var i = 1 ; i < 100000; i++ ) {
 }
 console.log('sum : ', sum);
 console.timeEnd('TIMER');
+
+// 객체형 출력 
+var obj = {
+    name : 'NodeJS',
+    how : 'Interesting'
+};
+console.log('obj : ' + obj);
+console.log('obj : ', obj); // 객체 내의 정보를 알고 싶을때는 , 이용해서 출력
+
+
