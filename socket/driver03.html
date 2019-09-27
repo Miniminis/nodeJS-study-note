@@ -1,0 +1,50 @@
+<!-- client.html -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Chat</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  </head>
+  <body>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">항목</th>
+          <th scope="col">내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">결제날짜</th>
+          <td id="date"></td>
+        </tr>
+        <tr>
+          <th scope="row">결제수단</th>
+          <td id="paymethod"></td>
+        </tr>
+        <tr>
+          <th scope="row">출발지</th>
+          <td id="startpoint"></td>
+        </tr>
+        <tr>
+          <th scope="row">도착지</th>
+          <td id="endpoint"></td>
+        </tr>
+      </tbody>
+    </table>
+    <div id="box" class="box">
+    <script src="/socket.io/socket.io.js"></script> <!-- 1) 소켓 io 연결 -->
+    <script src="//code.jquery.com/jquery-1.11.1.js"></script> <!-- 2) jquery cdn -->
+    <script>
+      var socket = io(); 
+      socket.on('receive info', function(date, paymethod, startpoint, endpoint){ 
+        console.log('driver 페이지야, 값들 들어오니?'+startpoint);  
+        $('#date').html(date);
+        $('#paymethod').html(paymethod);
+        $('#startpoint').html(startpoint);
+        $('#endpoint').html(endpoint);
+      });
+    </script>
+  </body>
+</html>

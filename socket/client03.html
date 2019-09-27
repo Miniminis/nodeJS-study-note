@@ -1,0 +1,66 @@
+<!-- client.html -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Chat</title>
+    <style>
+      .chat_log{ width: 95%; height: 200px; }
+      .name{ width: 10%; }
+      .message{ width: 70%; }
+      .chat{ width: 10%; }
+    </style>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  </head>
+  <body>
+    <!-- <div>
+      <textarea id="chatLog" class="chat_log" readonly></textarea>
+    </div> -->
+    <!-- <form id="chat">
+      <input id="name" class="name" type="text" readonly>
+      <input id="message" class="message" type="text">
+      <input type="submit" class="chat" value="chat"/>
+    </form> -->
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">항목</th>
+          <th scope="col">내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">결제날짜</th>
+          <td id="date">2019.09.30</td>
+        </tr>
+        <tr>
+          <th scope="row">결제수단</th>
+          <td id="paymethod">T-MONEY</td>
+        </tr>
+        <tr>
+          <th scope="row">출발지</th>
+          <td id="startpoint">서울시 종로구 YMCA 건물 7층 </td>
+        </tr>
+        <tr>
+          <th scope="row">도착지</th>
+          <td id="endpoint">서울시 강남구 롯데 백화점 </td>
+        </tr>
+      </tbody>
+    </table>
+    <a id="btn">표 데이터 전소옹~!</a>
+    <div id="box" class="box">
+    <script src="/socket.io/socket.io.js"></script> <!-- 1) 소켓 io 연결 -->
+    <script src="//code.jquery.com/jquery-1.11.1.js"></script> <!-- 2) jquery cdn -->
+    <script>
+      //alert($('#startpoint').html());
+      var socket = io(); //socket.io.js 파일로부터 소켓 연결 + socket 변수 설정 
+      //var data = $('#date').html();
+      //console.log(data);
+      socket.emit('send payinfo', $('#date').html(), $('#paymethod').html(), $('#startpoint').html(), $('#endpoint').html());   
+      
+      //서버에서는 전체 사용자에게 응답, 
+      //client 페이지에서는 해당 이벤트 리스너를 구현하지 않음으로써 
+      //정보를 driver 쪽에만 표시할 수 있다. 
+    </script>
+  </body>
+</html>
