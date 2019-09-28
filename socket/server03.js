@@ -1,5 +1,3 @@
-//server.js 
-
 //express 모듈 로딩 + 초기화
 var app = require('express')();
 //http 모듈 로딩, http server에 app 연결 
@@ -61,3 +59,19 @@ io.on('connection', function(socket){
 http.listen(3000, function(){ 
   console.log('3000번 서버가 시작됨!'); 
 });
+
+//운행중 
+//1. 사용자 도착버튼 누름 : emit arrive event  
+//2. 노드 서버 : on  arrive event 
+//- console 에서 확인 
+//- emit go pay page event 
+//3. 사용자는 이미 결제페이지로 location.replace 됨 
+//4. 운전자는 on go pay page : location.replace 처리  
+
+//결제 
+//1. 사용자 결제 완료 후 내역 페이지 로딩
+//2. 서버 : on send payinfo 
+//- emit receive info 
+//3. 사용자는 이미 review write 페이지로 location.replace 됨 
+//4. 운전자는 on receive info + 5초 후 review write 페이지로 location.replace 
+ 
