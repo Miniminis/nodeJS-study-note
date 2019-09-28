@@ -52,15 +52,31 @@
     <script src="/socket.io/socket.io.js"></script> <!-- 1) 소켓 io 연결 -->
     <script src="//code.jquery.com/jquery-1.11.1.js"></script> <!-- 2) jquery cdn -->
     <script>
-      //alert($('#startpoint').html());
-      var socket = io(); //socket.io.js 파일로부터 소켓 연결 + socket 변수 설정 
-      //var data = $('#date').html();
-      //console.log(data);
-      socket.emit('send payinfo', $('#date').html(), $('#paymethod').html(), $('#startpoint').html(), $('#endpoint').html());   
-      
-      //서버에서는 전체 사용자에게 응답, 
-      //client 페이지에서는 해당 이벤트 리스너를 구현하지 않음으로써 
-      //정보를 driver 쪽에만 표시할 수 있다. 
+      $(document).ready(function(){
+        //socket.io.js 파일로부터 소켓 연결 
+        //+ socket 변수 설정
+        var socket = io();  
+        
+        //event : join room
+        var payidx = 14;
+        socket.emit('join room', payidx);
+        
+        //listener : after join room
+        socket.on('after join room', function(payidx){
+          console.log(payidx+'번 방이 생성 + join 됨');
+        });
+
+        //event : send payinfo 
+        socket.emit('send payinfo', $('#date').html(), $('#paymethod').html(), $('#startpoint').html(), $('#endpoint').html()); 
+        
+        //listener : receive info 
+        //서버에서는 방에 있는 전체 사용자에게 응답, 
+        //client 페이지에서는 해당 이벤트 리스너를 구현하지 않음으로써 
+        //정보를 driver 쪽에만 표시할 수 있다.
+        socket.on('receive info', function(date, paymethod, startpoint, endpoint){
+          console.log('receive info 결과 : client page '+date+'/'+startpoint);
+        });
+      });
     </script>
   </body>
 </html>

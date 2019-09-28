@@ -38,6 +38,17 @@
     <script src="//code.jquery.com/jquery-1.11.1.js"></script> <!-- 2) jquery cdn -->
     <script>
       var socket = io(); 
+
+      //event : join room
+      var payidx = 14;
+      socket.emit('join room', payidx);
+
+      //listener : after join room
+      socket.on('after join room', function(payidx){
+        console.log(payidx+'번 방이 생성 + join 됨');
+      });
+
+      //listener : receive info 
       socket.on('receive info', function(date, paymethod, startpoint, endpoint){ 
         console.log('driver 페이지야, 값들 들어오니?'+startpoint);  
         $('#date').html(date);
