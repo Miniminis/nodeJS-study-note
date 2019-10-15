@@ -4,11 +4,53 @@ const morgan = require('morgan');
 const path = require('path');
 const session = require('express-session');
 const flash = require('connect-flash');
+require('dotenv').config(); //env 따로 관리 
 
 const pageRouter = require('./routes/page');
+const {sequelize} = require('./models'); //sequelize 이용해 서버와 모델(db) 연결
 
+//express app 생성 
 const app = express();
+sequelize.sync();   //sequelize 이용해 서버와 모델(db) 연결
 
+//app 기본 설정 
 app.set('views', path.join(__dirname, 'views')); //모든 view 파일들은 views 이름의 폴더에 넣어준다. 
 app.set('view engine', 'pug');  //view engine 은 pug를 사용 
 app.set('port', process.env.PORT || '3000');    //process.env 객체에 PORT 속성이 있으면 그 값을 사용, 아니면 3000번 기본값을 사용 
+
+//사용할 미들웨어 설정 
+app.use(morgan('dev')); //요청에 대한 정보를 콘솔에 기록 
+app.use(express.static(path.join(__dirname, 'public'))); //정적파일 저장위치 명시 
+app.use(express.json()); //body-parser 
+app.use(express.urlencoded({extended: false})); //body-parser 
+app.use(cookieParser('nodebirdsecret')); //요청에 동봉된 쿠키를 해석. 매개변수 : 클라이언트에서 수정 막음 
+app.use(session({   //세션설정(for 로그인 등)
+    resave : false,
+    saveUninitialized : false,
+    secret : 'nodebirdsecret',
+    cookie : {
+        httpOnly : true,
+        secure : false,
+    }
+}));
+app.use(flash()); //일회성 메시지들을 웹 브라우저에 나타낼때 사용. cookie-parser & expression-session 뒤에 위치! 
+
+app.use('/', pageRouter);
+//에러처리 미들웨어 404 
+app.use((req, res, next)=> {
+    const err = new Error('NOT FOUND');
+    err.status = 404;
+    next(err);
+}); 
+//에러 핸들링 미들웨어 
+app.use((err, req, res)=> {
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') == 'development' ? err : {};
+    res.status(err.status || 500);
+    res.render('error');
+});
+
+app.listen(app.get('port'), ()=>{
+    console.log(app.get('port'), '번 포트에서 서버 연결!');
+});
+
