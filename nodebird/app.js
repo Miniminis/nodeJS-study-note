@@ -4,14 +4,18 @@ const morgan = require('morgan');
 const path = require('path');
 const session = require('express-session');
 const flash = require('connect-flash');
+const passport = require('passport');   //passport 모듈 로드 
 require('dotenv').config(); //env 따로 관리 
 
 const pageRouter = require('./routes/page');
-const {sequelize} = require('./models'); //sequelize 이용해 서버와 모델(db) 연결
+const authRouter = require('./routes/auth');
+const {sequelize} = require('./models'); //sequelize 이용해 서버와 모델(db) 연결 01 : ./models/index.js
+const passportConfig = require('./passport');    //passport 모듈 연결 01 : ./passport/index.js 의 생략 
 
 //express app 생성 
 const app = express();
-sequelize.sync();   //sequelize 이용해 서버와 모델(db) 연결
+sequelize.sync();   //sequelize 이용해 서버와 모델(db) 연결 02
+passportConfig(passport); // passport 모듈 연결 02
 
 //app 기본 설정 
 app.set('views', path.join(__dirname, 'views')); //모든 view 파일들은 views 이름의 폴더에 넣어준다. 
@@ -34,8 +38,15 @@ app.use(session({   //세션설정(for 로그인 등)
     }
 }));
 app.use(flash()); //일회성 메시지들을 웹 브라우저에 나타낼때 사용. cookie-parser & expression-session 뒤에 위치! 
+app.use(passport.initialize()); //passport 모듈 연결03
+//req 요청에 passport 설정을 심음 
+app.use(passport.session());    //passport 모듈 연결04
+//req.session 객체에 passport 정보를 저장 
+//req.session 객체가 express-session 에서 생성하는 것이므로 express-session 뒤에 연결해야함 
 
 app.use('/', pageRouter);
+app.use('/auth', authRouter);
+
 //에러처리 미들웨어 404 
 app.use((req, res, next)=> {
     const err = new Error('NOT FOUND');
