@@ -35,10 +35,10 @@ const upload = multer({
             cb(null, 'uploads/');
         },
         //파일 이름 설정 
-        filename(req, res, cb) {
-            const ext = path.extname(file.originalName); //원본 파일의 확장자 추출 .js or .html 등 
+        filename(req, file, cb) {
+            const ext = path.extname(file.originalname); //원본 파일의 확장자 추출 .js or .html 등 
             //원본파일이름 + 
-            cb(null, path.basename(file.originalName, ext) + new Date().valueOf() + ext);   //확장자 없엔 원본파일 이름 + 날짜+확장자
+            cb(null, path.basename(file.originalname, ext) + Date.now() + ext);   //확장자 없엔 원본파일 이름 + 날짜+확장자
         },
     }),
     //파일 크기 제한 
@@ -72,6 +72,31 @@ router.post('/', isLoggedIn, upload2.none(), async(req, res, next) => {
     console.log(error);
     next(error);
   }
+});
+
+//hashtag 흐름 처리 
+router.post('/hashtag', async(req, res, next) => {
+    const query = req.query.hashtag;    //쿼리 스트링으로 해시태그의 이름을 받고 
+    if(!query) {    //해시 태그가 빈 문자열일 경우 : 
+        return res.redirect('/');   //메인페이지 redirect 처리 
+    }
+    try {
+        //DB에서 해시 태그 존재하는지 검색 후 
+        const hashtag = await Hashtag.findOne({ where : { title : query } });
+        let posts = [];
+        if(hashtag) {
+            //sequelize 의 getPosts([{조건}]) 를 통해서 조건에 맞는 모든 글을 가져온다. 
+            posts = await hashtag.getPosts({ include : [{ model : User }] });
+        }
+        return res.render('main', {
+            title : `${query} | NodeBird`,
+            user : req.user,
+            twits : posts, //조회된 글만 twits 에 넣어서 main 페이지로 렌더링 
+        });
+    } catch (error) {
+        console.log(error);
+        return next(error);
+    }
 });
 
 module.exports = router;

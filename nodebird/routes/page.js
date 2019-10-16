@@ -19,11 +19,11 @@ router.get('/join', isNotLoggedIn, (req, res)=>{
 
 router.get('/', (req, res, next)=>{
     Post.findAll({
-        inclue : {
+        include : {
             model : User,
-            attributes : ['id', 'nick'],
+            attributes : ['id', 'nick'], //User table 에서 id와 nick 가져오기 
         },
-        order : [['createdAt', 'DESC']],
+        order : [['createdAt', 'DESC']], //내림차순으로 정렬 
     })
     .then((posts) => {
         res.render('main', {
