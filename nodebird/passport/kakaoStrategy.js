@@ -1,18 +1,18 @@
 //passport-kakao 모듈로부터 Strategy 생성자 불러와 사용
-const KakaoStragety = require('passport-kakao').Strategy;
+const KakaoStrategy = require('passport-kakao').Strategy;
 
 //models 폴더로부터 User 객체 받아오기 
-const {User} = require('../models');
+const { User } = require('../models');
 
 //kakao() : module 만들기 
 module.exports = (passport) => {
     //미들웨어 설정 
-    passport.use(new KakaoStragety({
+    passport.use(new KakaoStrategy({
         clientID : process.env.KAKAO_ID,
         callbackURL : '/auth/kakao/callback',
     }, async (accessToken, refreshToken, profile, done) => {    //카카오 인증 성공하면 callback : 3가지 정보 전달 
         try {
-            const exUser = await User.find({where : {snsId: profile.id, provider: 'kakao'}});
+            const exUser = await User.findOne({ where : { snsId: profile.id, provider: 'kakao' } });
             if(exUser) {
                 done(null, exUser);
             } else {

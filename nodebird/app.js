@@ -27,11 +27,11 @@ app.use(morgan('dev')); //요청에 대한 정보를 콘솔에 기록
 app.use(express.static(path.join(__dirname, 'public'))); //정적파일 저장위치 명시 
 app.use(express.json()); //body-parser 
 app.use(express.urlencoded({extended: false})); //body-parser 
-app.use(cookieParser('nodebirdsecret')); //요청에 동봉된 쿠키를 해석. 매개변수 : 클라이언트에서 수정 막음 
+app.use(cookieParser(process.env.COOKIE_SECRET)); //요청에 동봉된 쿠키를 해석. 매개변수 : 클라이언트에서 수정 막음 
 app.use(session({   //세션설정(for 로그인 등)
     resave : false,
     saveUninitialized : false,
-    secret : 'nodebirdsecret',
+    secret : process.env.COOKIE_SECRET,
     cookie : {
         httpOnly : true,
         secure : false,

@@ -10,7 +10,7 @@ module.exports = (passport) => {
     //done(에러발생시 사용할 것, user의 id만 저장하여 용량절약)
 
     passport.deserializeUser((id, done)=> {
-        User.find({ where : { id } })
+        User.findOne({ where : { id } })
             .then(user => done(null, user))
             .catch(err => done(err));
     });

@@ -11,7 +11,7 @@ router.post('/join', isNotLoggedIn, async (req, res, next) => {
     const { email, nick, password } = req.body;
     try {
         //이미 DB에 존재하는 user 정보라면, redirect 처리 
-        const exUSer = await User.find({ where : { email } });
+        const exUSer = await User.findOne({ where : { email } });
         if(exUSer) {
             req.flash('joinError', '이미 가입된 이메일입니다.');
             return res.redirect('/join');
