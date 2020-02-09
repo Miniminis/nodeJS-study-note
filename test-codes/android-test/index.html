@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>안드로이드-js 테스트</title>
+  <script>
+    function phFromAndroid(phnum) {
+      document.getElementById('phnum').innerText = phnum;
+    }
+
+    function isSurveyCompleted(result){ 
+      console.log('result: '+result)
+        window.AppShfa.isSurveyCompleted(result); 
+    }
+  
+  </script>
+</head>
+
+<body>
+  <h2>안드로이드-자바스크립트 테스트</h2>
+  <button onclick="isSurveyCompleted('Y')">설문조사완료!</button>
+  <h2 id="phnum">000-0000-0000</h2>
+</body>
+</html>

@@ -224,6 +224,9 @@
     </div>
   </div>
 
+  <h2>원 영역 내의 총 식당 개수 : <span id="totalCnt">0</span></h2>
+
+
   <script>
     // 마커를 담을 배열입니다
     var markers = [];
@@ -267,11 +270,11 @@
 
 
     // 마커 클러스터러를 생성합니다 
-    var clusterer = new kakao.maps.MarkerClusterer({
-        map: map, // 마커들을 클러스터로 관리하고 표시할 지도 객체 
-        averageCenter: true, // 클러스터에 포함된 마커들의 평균 위치를 클러스터 마커 위치로 설정 
-        minLevel: 10 // 클러스터 할 최소 지도 레벨 
-    });
+    // var clusterer = new kakao.maps.MarkerClusterer({
+    //     map: map, // 마커들을 클러스터로 관리하고 표시할 지도 객체 
+    //     averageCenter: true, // 클러스터에 포함된 마커들의 평균 위치를 클러스터 마커 위치로 설정 
+    //     minLevel: 10 // 클러스터 할 최소 지도 레벨 
+    // });
 
 
 
@@ -360,13 +363,13 @@
         (function (marker, title) {
           kakao.maps.event.addListener(marker, 'mouseover', function () {
             displayInfowindow(marker, title);
-            console.log('marker 클릭 정보! '+marker.getPosition().getLat()+' : '+marker.getPosition().getLng())
+            // console.log('marker 클릭 정보! '+marker.getPosition().getLat()+' : '+marker.getPosition().getLng())
           });
 
           kakao.maps.event.addListener(marker, 'mouseout', function () {
             infowindow.close();
           });
-
+ 
           itemEl.onmouseover = function () {
             displayInfowindow(marker, title);
           };
@@ -505,24 +508,22 @@
       var len = circles.length, i = 0;
 
       for (; i < len; i++) {
-        var type = circles[i].type;
+        console.log('몇번 ?')
         var sPoint = circles[i].sPoint;
         var ePoint = circles[i].ePoint;
-        var center = circles[i].center;
-        var radius = circles[i].radius;
-
+        
         // 마커가 표시될 위치입니다 
-        var markerPosition = new kakao.maps.LatLng(sPoint.y, sPoint.x);
-        var markerPosition02 = new kakao.maps.LatLng(ePoint.y, ePoint.x);
+        // var markerPosition = new kakao.maps.LatLng(sPoint.y, sPoint.x);
+        // var markerPosition02 = new kakao.maps.LatLng(ePoint.y, ePoint.x);
 
         // 마커를 생성합니다
-        var marker = new kakao.maps.Marker({
-          position: markerPosition
-        });
+        // var marker = new kakao.maps.Marker({
+        //   position: markerPosition
+        // });
 
-        console.log('type: '+type);
-        console.log('sPoint: '+sPoint.y + " : "+sPoint.x);
-        console.log('ePoint: '+ePoint.y + " : "+ePoint.x);
+        // console.log('type: '+type);
+        // console.log('sPoint: '+sPoint.y + " : "+sPoint.x);
+        // console.log('ePoint: '+ePoint.y + " : "+ePoint.x);
 
         var cnt = 0
         for (var i = 0; i < markers.length; i++) {
@@ -531,26 +532,27 @@
           
           // console.log('marker'+i+' 의 위치 : '+ lat + " : "+lng);
           
-          var result = sPoint.y < lat < ePoint.y
-          var result02 = sPoint.x < lng < ePoint.x
+          var result = (sPoint.y < lat) && (lat < ePoint.y)
+          var result02 = (sPoint.x < lng) && (lng < ePoint.x)
           
           if(result && result02) {
-            console.log('result : '+result);
-            console.log('result02 : '+result02);
-            console.log('marker'+i+' 의 위치 : '+ lat + " : "+lng);
+            // console.log('result : '+result+" : "+sPoint.y+" : "+lat+" : "+ePoint.y);
+            // console.log('result02 : '+result02+" : "+sPoint.x+" : "+lng+" : "+ePoint.x);
+            // console.log('marker'+i+' 의 위치 : '+ lat + " : "+lng);
             cnt = cnt+1;
           }
         }
 
         console.log('cnt : '+cnt);
+        document.getElementById('totalCnt').innerText = cnt;
 
-        var marker02 = new kakao.maps.Marker({
-          position: markerPosition02
-        });
+        // var marker02 = new kakao.maps.Marker({
+        //   position: markerPosition02
+        // });
 
         // 마커가 지도 위에 표시되도록 설정합니다
-        marker.setMap(map);
-        marker02.setMap(map);
+        // marker.setMap(map);
+        // marker02.setMap(map);
 
       }
     }
