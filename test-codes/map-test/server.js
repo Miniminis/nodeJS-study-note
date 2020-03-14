@@ -13,6 +13,7 @@ var server = http.createServer(function(req, res){
     res.writeHead(200);
     res.end(fs.readFileSync(__dirname + url));
 });
+
 server.listen(3000, function(){
     console.log('서버가 시작되었습니다. ');
 })
