@@ -1,6 +1,14 @@
-//map, keyword
-//overlay
-//cluster
+/**
+ * Map, keyword
+ * Circle overlay
+ * Polygon 
+ */
+
+ /** 보완
+  * 원 드래그시 초기화 처리 - undo 처리 - V
+  * 줌 동작 - 폴리곤 생성 및 삭제 처리 - 
+  * 폴리곤 클릭 이벤트 : 중심좌표 처리 - 자꾸 경기도로 이동함 - V
+  */
 
 
 /**
@@ -15,13 +23,10 @@ var mapContainer = document.getElementById('map'), // 지도를 표시할 div
   };
 
 // 지도를 생성합니다    
-var map = new kakao.maps.Map(mapContainer, mapOption);
-
-// 장소 검색 객체를 생성합니다
-var ps = new kakao.maps.services.Places();
-
-// 검색 결과 목록이나 마커를 클릭했을 때 장소명을 표출할 인포윈도우를 생성합니다
-var infowindow = new kakao.maps.InfoWindow({ zIndex: 1 });
+var map = new kakao.maps.Map(mapContainer, mapOption),      //지도객체
+  customOverlay = new kakao.maps.CustomOverlay({}),         //지역행정구역별 - 커스텀 오버레이 
+  ps = new kakao.maps.services.Places(),                    //장소 검색 객체를 생성합니다
+  infowindow = new kakao.maps.InfoWindow({ zIndex: 1 });    //검색 결과 목록이나 마커를 클릭했을 때 장소명을 표출할 인포윈도우를 생성합니다
 
 // overlay for Drawing Manager
 var options = {
@@ -44,24 +49,6 @@ var options = {
 
 // 위에 작성한 옵션으로 Drawing Manager를 생성합니다
 var manager = new kakao.maps.drawing.DrawingManager(options);
-
-
-//mousemove event - 장소 개수 표현
-kakao.maps.event.addListener(map, 'mousemove', function () {
-  getDataFromDrawingMap()
-  console.log('mousemove event!')  
-});
-
-//지도 클릭하면 원, 장소개수 초기화
-kakao.maps.event.addListener(map, 'click', function () {
-  manager.undo()
-  document.getElementById('totalCnt').innerText = 0
-});
-
-//원 드래그시 초기화
-
-
-
 
 // 키워드로 장소를 검색합니다
 searchPlaces();
@@ -144,13 +131,17 @@ function displayPlaces(places) {
         infowindow.close();
       });
 
-      itemEl.onmouseover = function () {
+      itemEl.onclick = function () {
         displayInfowindow(marker, title);
       };
 
-      itemEl.onmouseout = function () {
-        infowindow.close();
-      };
+      // itemEl.onmouseover = function () {
+      //   displayInfowindow(marker, title);
+      // };
+
+      // itemEl.onmouseout = function () {
+      //   infowindow.close();
+      // };
     })(marker, places[i].place_name);
 
     fragment.appendChild(itemEl);
@@ -252,7 +243,7 @@ function displayPagination(pagination) {
 // 검색결과 목록 또는 마커를 클릭했을 때 호출되는 함수입니다
 // 인포윈도우에 장소명을 표시합니다
 function displayInfowindow(marker, title) {
-  var content = '<div style="padding:5px;z-index:1;"> 지금 이곳은 ? ' + title + '</div>';
+  var content = '<div style="padding:5px;z-index:1;">' + title + '</div>';
 
   infowindow.setContent(content);
   infowindow.open(map, marker);
@@ -285,34 +276,63 @@ function removeAllChildNods(el) {
 
 
 //empty 값 check
-// var isEmpty = function(value){ 
-//   if( value == "" || 
-//       value == null || 
-//       value == undefined || 
-//       ( value != null && typeof value == "object" && !Object.keys(value).length ) 
-//   ){ 
-//     return true 
-//   } else { 
-//     return false 
-//   } 
-// };
+var isEmpty = function(value){ 
+  if( value == "" || 
+      value == null || 
+      value == undefined || 
+      ( value != null && typeof value == "object" && !Object.keys(value).length ) 
+  ){ 
+    return true 
+  } else { 
+    return false 
+  } 
+};
 
-// 원 역역 선택
+//mousemove event - 장소 개수 표현
+// kakao.maps.event.addListener(map, 'mousemove', function () {
+//   getDataFromDrawingMap()
+//   console.log('mousemove event!')  
+// });
+
+//지도 클릭하면 원, 장소개수 초기화
+// kakao.maps.event.addListener(map, 'click', function () {
+//   manager.undo()
+//   document.getElementById('totalCnt').innerText = 0
+// });
+
+
+// 원 영역 선택
 function selectOverlay() {
 
   //현 위치에서 선택 
   // var level = map.getLevel();
   // console.log('zoom!'+level)
 
-  //text 초기화
-  document.getElementById('totalCnt').innerText = 0;
-
   // 그리기 중이면 그리기를 취소합니다
   manager.cancel();
-  manager.undo();
+  // manager.undo();
+
+  //지도상에 이미 원 객체가 존재하면 없에기 
+  var circle = manager.getOverlays([kakao.maps.drawing.OverlayType.CIRCLE]);
+
+  if(circle[0] != undefined) {
+    manager.remove(circle[0].target);
+  }
 
   // 클릭한 그리기 요소 타입을 선택합니다
-  manager.select(kakao.maps.drawing.OverlayType['CIRCLE']);
+  var overlay = kakao.maps.drawing.OverlayType['CIRCLE'];
+  manager.select(overlay);
+
+  //mousemove event - 장소 개수 표현
+  manager.addListener('drawend', function(overlay) {
+    getDataFromDrawingMap()
+  });
+
+  //x 버튼 누를 때 - remove 이벤트 발생 
+  manager.addListener('remove', function(e) {
+      document.getElementById('totalCnt').innerText = 0 
+  });
+
 }
 
 
@@ -328,9 +348,9 @@ function getDataFromDrawingMap() {
 
   // 지도에 가져온 데이터로 도형들을 그립니다
   var circles = data[kakao.maps.drawing.OverlayType.CIRCLE];
-  var len = circles.length, i = 0;
+  var len = circles.length;
 
-  for (; i < len; i++) {
+  for (var i = 0; i < len; i++) {
     //console.log('몇번 ?')
     var sPoint = circles[i].sPoint;
     var ePoint = circles[i].ePoint;
@@ -392,57 +412,127 @@ function getDataFromDrawingMap() {
 /**
  * POLYGON  
  */
-$.getJSON("./geoKr.json", function(geojson){
+//행정구역 경계 좌표 배열 받아오기
+$.getJSON("./geoKr.json", function(geojson) {
   var data = geojson.features;
   var coordinates = [];
-  var name="";
+  var name = "";
 
   $.each(data, function(index, val) {
-    coordinates = val.geometry.coordinates;
-    name = val.properties.SIG_KOR_NM;
+    coordinates = val.geometry.coordinates;   //좌표배열 
+    name = val.properties.SIG_KOR_NM;         //행정구이름 
+  
+    displayArea(coordinates, name);       //폴리곤
+  });
+});
 
-    displayArea(coordinates, name);
-  })
 
-})
 
-var polygon = [];
+
+var polygons = [];
 
 //행정구역 폴리곤
 function displayArea(coordinates, name) {
   var path=[];
   var points = [];
 
+  //polygon point - LatLng 객체 만들기
   $.each(coordinates[0], function(index, coordinates) {
     var point = new Object();
     point.x = coordinates[1];
     point.y = coordinates[0];
     points.push(point)
-    path.push(new kakao.map.LatLng(point.x, point.y))
+    path.push(new kakao.maps.LatLng(point.x, point.y))
   })
 
-  var polygon = new kakao.maps.Polygon
+  //LatLng 객체 배열로 polygon 생성 
+  var polygon = new kakao.maps.Polygon({
+    map: map, // 다각형을 표시할 지도 객체
+    path: path,
+    strokeWeight: 2,
+    strokeColor: '#004c80',
+    strokeOpacity: 0.8,
+    fillColor: '#fff',
+    fillOpacity: 0.7 
+  });
+
+  polygons.push(polygon)      //polygons 배열로 저장 
+
+  polygonEventListeners(polygon)
 }
 
-// 다각형을 구성하는 좌표 배열입니다. 이 좌표들을 이어서 다각형을 표시합니다
-var polygonPath = [
-  new kakao.maps.LatLng(33.45133510810506, 126.57159381623066),
-  new kakao.maps.LatLng(33.44955812811862, 126.5713551811832),
-  new kakao.maps.LatLng(33.449986291544086, 126.57263296172184),
-  new kakao.maps.LatLng(33.450682513554554, 126.57321034054742),
-  new kakao.maps.LatLng(33.451346760004206, 126.57235740081413) 
-];
+function polygonEventListeners(polygon) {
 
-// 지도에 표시할 다각형을 생성합니다
-var polygon = new kakao.maps.Polygon({
-  path:polygonPath, // 그려질 다각형의 좌표 배열입니다
-  strokeWeight: 3, // 선의 두께입니다
-  strokeColor: '#39DE2A', // 선의 색깔입니다
-  strokeOpacity: 0.8, // 선의 불투명도 입니다 1에서 0 사이의 값이며 0에 가까울수록 투명합니다
-  strokeStyle: 'longdash', // 선의 스타일입니다
-  fillColor: '#A2FF99', // 채우기 색깔입니다
-  fillOpacity: 0.7 // 채우기 불투명도 입니다
-});
+  //custom event setting  
+  kakao.maps.event.addListener(polygon, 'mouseover', function(mouseEvent) {
+    polygon.setOptions({fillColor: '#09f'});
 
-// 지도에 다각형을 표시합니다
-polygon.setMap(map);
+    //customOverlay.setContent('<div class="area">' + name + '</div>');
+    
+    //customOverlay.setPosition(mouseEvent.latLng); 
+    customOverlay.setMap(map);
+  });
+
+  //다각형에 mousemove 이벤트를 등록하고 이벤트가 발생하면 커스텀 오버레이의 위치를 변경합니다 
+  kakao.maps.event.addListener(polygon, 'mousemove', function(mouseEvent) {
+      customOverlay.setPosition(mouseEvent.latLng); 
+  });
+
+  // 다각형에 mouseout 이벤트를 등록하고 이벤트가 발생하면 폴리곤의 채움색을 원래색으로 변경합니다
+  // 커스텀 오버레이를 지도에서 제거합니다 
+  kakao.maps.event.addListener(polygon, 'mouseout', function() {
+      polygon.setOptions({fillColor: '#fff'});
+      customOverlay.setMap(null);
+  }); 
+
+  //다각형에 click 이벤트를 등록하고 이벤트가 발생하면 다각형의 이름과 면적을 인포윈도우에 표시합니다 
+  kakao.maps.event.addListener(polygon, 'click', function(mouseEvent) {
+    var level = map.getLevel() -2;
+    // map.setLevel(level, {anchor: centroid(points), animate: {
+    //   duration: 350
+    // }});
+    map.setLevel(level);
+    deletePolygon(polygons);
+  });
+
+  // kakao.maps.event.addListener(map, 'zoom_changed', function() {
+  //   if(map.getLevel() >= 9) {
+  //     for(var i=0; i<polygons.length; i++) {
+  //       // polygons[i].setMap(null);
+  //       polygon.setZIndex(3);
+  //       console.log('zoomed!');
+  //     }
+  //   }
+  // });
+
+}
+
+//중심좌표 구하는 centroid 알고리즘 
+function centroid(points) {
+  var i, j, len, p1, p2, f, area, x, y;
+
+  area = x = y = 0;
+
+  for(i=0, len=points.length, j=len-1; i<len; j=i++) {
+    p1 = points[i];
+    p2 = points[j];
+
+    f = p1.y * p2.x - p2.y * p1.x;
+    x += (p1.x+p2.x)*f;
+    y += (p1.y+p2.y)*f;
+    area += f*3;
+  }
+  return new kakao.maps.LatLng(x / area, y / area);
+}
+
+
+//지도 확대시 polygon 없엠
+function deletePolygon(polygons) {
+  for(var i=0; i<polygons.length; i++) {
+    polygons[i].setMap(null);
+  }
+  //polygons=[];
+}
+
+
+
